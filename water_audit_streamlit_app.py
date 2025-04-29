@@ -2,49 +2,89 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 from fpdf import FPDF
+import base64
 
-st.set_page_config(page_title="Water Footprint Audit Tool", layout="centered")
+st.set_page_config(page_title="💧 Water Footprint Audit Tool", layout="centered")
 
-st.title("🌊 Industrial Water Footprint Audit Tool")
+# Custom styling
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f0f8ff;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .stButton > button {
+        background-color: #1E90FF;
+        color: white;
+        font-weight: bold;
+        border-radius: 10px;
+    }
+    .stDownloadButton > button {
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        border-radius: 10px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-st.markdown("Enter your estimated usage below to calculate your water footprint.")
+st.title("💧 Industrial Water Footprint Audit Tool")
+st.subheader("🌍 Empowering Sustainable Practices through Smart Water Monitoring")
 
-# Input sliders
-cleaning = st.slider("Cleaning Units per day", 0, 100, 10)
-cooling = st.slider("Cooling Cycles per day", 0, 50, 5)
-batches = st.slider("Production Batches per day", 0, 100, 20)
+st.info("Adjust the sliders below to estimate your facility's water usage across daily operations.")
 
-# Calculation
+# User Inputs
+col1, col2, col3 = st.columns(3)
+with col1:
+    cleaning = st.slider("🧼 Cleaning Units per Day", 0, 100, 10)
+with col2:
+    cooling = st.slider("❄️ Cooling Cycles per Day", 0, 50, 5)
+with col3:
+    batches = st.slider("🏭 Production Batches per Day", 0, 100, 20)
+
+# Calculations
 usage = {
-    "cleaning": cleaning * 10,
-    "cooling": cooling * 20,
-    "production": batches * 15
+    "Cleaning": cleaning * 10,
+    "Cooling": cooling * 20,
+    "Production": batches * 15
 }
-usage["total"] = sum(usage.values())
+usage["Total"] = sum(usage.values())
 
-st.subheader("💧 Water Usage Summary")
-st.write(f"Cleaning: {usage['cleaning']} Litres")
-st.write(f"Cooling: {usage['cooling']} Litres")
-st.write(f"Production: {usage['production']} Litres")
-st.write(f"**Total Usage: {usage['total']} Litres**")
+# Display summary
+st.markdown("---")
+st.subheader("📊 Estimated Water Usage Breakdown (Litres/Day)")
+st.metric("Cleaning", f"{usage['Cleaning']} L")
+st.metric("Cooling", f"{usage['Cooling']} L")
+st.metric("Production", f"{usage['Production']} L")
+st.metric("💧 Total Usage", f"{usage['Total']} L")
 
-# Bar chart
-st.subheader("📊 Water Usage Breakdown")
+# Visualization
+st.markdown("### 📈 Visual Representation")
 fig, ax = plt.subplots()
-ax.bar(["Cleaning", "Cooling", "Production"], 
-       [usage["cleaning"], usage["cooling"], usage["production"]],
+ax.bar(usage.keys() - {"Total"}, [usage[k] for k in usage if k != "Total"],
        color=["#3498db", "#2ecc71", "#e74c3c"])
 ax.set_ylabel("Litres")
+ax.set_title("Water Usage per Activity")
 st.pyplot(fig)
 
-# PDF Report
-if st.button("📄 Generate PDF Report"):
+# PDF report generator
+def create_pdf(data):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("Arial", size=14)
     pdf.cell(200, 10, txt="Water Footprint Audit Report", ln=True, align='C')
-    for k, v in usage.items():
-        pdf.cell(200, 10, txt=f"{k.capitalize()}: {v} Litres", ln=True)
-    pdf.output("Water_Audit_Report.pdf")
-    with open("Water_Audit_Report.pdf", "rb") as f:
-        st.download_button("Download Report", f, file_name="Water_Audit_Report.pdf")
+    pdf.set_font("Arial", size=12)
+    pdf.ln(10)
+    for k, v in data.items():
+        pdf.cell(200, 10, txt=f"{k}: {v} Litres", ln=True)
+    pdf_file = "Water_Audit_Report.pdf"
+    pdf.output(pdf_file)
+    return pdf_file
+
+if st.button("📄 Generate PDF Report"):
+    pdf_path = create_pdf(usage)
+    with open(pdf_path, "rb") as f:
+        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+        href = f'<a href="data:application/octet-stream;base64,{base64_pdf}" download="Water_Audit_Report.pdf">📥 Click here to download your report</a>'
+        st.markdown(href, unsafe_allow_html=True)
