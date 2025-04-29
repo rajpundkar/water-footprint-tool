@@ -59,14 +59,15 @@ st.metric("Cooling", f"{usage['Cooling']} L")
 st.metric("Production", f"{usage['Production']} L")
 st.metric("💧 Total Usage", f"{usage['Total']} L")
 
-# Visualization
 st.markdown("### 📈 Visual Representation")
 fig, ax = plt.subplots()
-ax.bar(usage.keys() - {"Total"}, [usage[k] for k in usage if k != "Total"],
-       color=["#3498db", "#2ecc71", "#e74c3c"])
+labels = [k for k in usage.keys() if k != "Total"]
+values = [usage[k] for k in labels]
+ax.bar(labels, values, color=["#3498db", "#2ecc71", "#e74c3c"])
 ax.set_ylabel("Litres")
 ax.set_title("Water Usage per Activity")
 st.pyplot(fig)
+
 
 # PDF report generator
 def create_pdf(data):
