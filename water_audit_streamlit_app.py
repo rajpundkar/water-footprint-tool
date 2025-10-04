@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from fpdf import FPDF
 import base64
 
-st.set_page_config(page_title="💧 Water Footprint Audit Tool", layout="centered")
+st.set_page_config(page_title=" Water Footprint Audit Tool", layout="centered")
 
 # Custom styling
 st.markdown("""
@@ -29,19 +29,19 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("💧 Industrial Water Footprint Audit Tool")
-st.subheader("🌍 Empowering Sustainable Practices through Smart Water Monitoring")
+st.title(" Industrial Water Footprint Audit Tool")
+st.subheader(" Empowering Sustainable Practices through Smart Water Monitoring")
 
 st.info("Adjust the sliders below to estimate your facility's water usage across daily operations.")
 
 # User Inputs
 col1, col2, col3 = st.columns(3)
 with col1:
-    cleaning = st.slider("🧼 Cleaning Units per Day", 0, 100, 10)
+    cleaning = st.slider(" Cleaning Units per Day", 0, 100, 10)
 with col2:
-    cooling = st.slider("❄️ Cooling Cycles per Day", 0, 50, 5)
+    cooling = st.slider(" Cooling Cycles per Day", 0, 50, 5)
 with col3:
-    batches = st.slider("🏭 Production Batches per Day", 0, 100, 20)
+    batches = st.slider("Production Batches per Day", 0, 100, 20)
 
 # Calculations
 usage = {
@@ -53,13 +53,13 @@ usage["Total"] = sum(usage.values())
 
 # Display summary
 st.markdown("---")
-st.subheader("📊 Estimated Water Usage Breakdown (Litres/Day)")
+st.subheader(" Estimated Water Usage Breakdown (Litres/Day)")
 st.metric("Cleaning", f"{usage['Cleaning']} L")
 st.metric("Cooling", f"{usage['Cooling']} L")
 st.metric("Production", f"{usage['Production']} L")
 st.metric("💧 Total Usage", f"{usage['Total']} L")
 
-st.markdown("### 📈 Visual Representation")
+st.markdown("### Visual Representation")
 fig, ax = plt.subplots()
 labels = [k for k in usage.keys() if k != "Total"]
 values = [usage[k] for k in labels]
@@ -83,7 +83,7 @@ def create_pdf(data):
     pdf.output(pdf_file)
     return pdf_file
 
-if st.button("📄 Generate PDF Report"):
+if st.button(" Generate PDF Report"):
     pdf_path = create_pdf(usage)
     with open(pdf_path, "rb") as f:
         base64_pdf = base64.b64encode(f.read()).decode('utf-8')
